@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bus Booking Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f4f8;
+        }
+
+        .bus-type-card {
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bus-type-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            transition: background 0.3s ease;
+        }
+
+        .bus-type-card:hover::before {
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        .bus-type-card .card-content {
+            position: relative;
+            z-index: 10;
+        }
+
+        .modal {
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-content {
+            transform: translateY(20px);
+            transition: transform 0.3s ease-out;
+        }
+
+        .modal.open .modal-content {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="bg-[#f0f4f8]">
+    <!-- Header -->
+    <header class="w-full bg-blue-900 border-b-4 border-blue-700 shadow-md">
+        <div class="max-w-7xl mx-auto flex justify-between items-center py-4 px-6">
+            <h1 class="text-3xl font-bold text-white">ConnectBus</h1>
+            <nav>
+                <ul class="flex space-x-6 text-white">
+                    <li><a href="#" class="hover:text-blue-300 transition-colors duration-300" id="home-link">Home</a></li>
+                    <li><a href="#" class="hover:text-blue-300 transition-colors duration-300" id="auth-link">Login</a></li>
+                    <li><a href="#" class="hover:text-blue-300 transition-colors duration-300" id="book-ticket-link">Book Ticket</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <div class="w-full h-80 flex items-center justify-center p-4" style="background: linear-gradient(to bottom, #1e3a8a, #0c4a6e);">
+        <div class="text-center text-white">
+            <h2 class="text-4xl sm:text-5xl font-extrabold mb-2">Find Your Bus, Book Your Seat.</h2>
+            <p class="text-lg sm:text-xl font-light">Simple, Fast, and Reliable Bus Booking.</p>
+        </div>
+    </div>
+
+    <!-- Bus Search Section -->
+    <div class="max-w-4xl mx-auto -mt-20 relative z-10 p-4">
+        <div class="bg-white rounded-2xl shadow-xl p-8 space-y-6">
+            <div class="flex items-center space-x-4 mb-4">
+                <span class="text-xl font-semibold text-gray-800">Search Buses</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                    <label for="from" class="block text-sm font-medium text-gray-700 mb-1">From</label>
+                    <input type="text" id="from" placeholder="Source City"
+                        class="w-full px-4 py-2 bg-gray-100 rounded-lg border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+                </div>
+                <div>
+                    <label for="to" class="block text-sm font-medium text-gray-700 mb-1">To</label>
+                    <input type="text" id="to" placeholder="Destination City"
+                        class="w-full px-4 py-2 bg-gray-100 rounded-lg border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+                </div>
+                <div class="col-span-1 sm:col-span-2 md:col-span-1">
+                    <label for="date" class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                    <div class="relative">
+                        <input type="date" id="date"
+                            class="w-full px-4 py-2 bg-gray-100 rounded-lg border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+                        <div class="absolute right-2 top-1/2 -translate-y-1/2 flex space-x-2">
+                            <button id="today-btn"
+                                class="text-xs px-2 py-1 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">Today</button>
+                            <button id="tomorrow-btn"
+                                class="text-xs px-2 py-1 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">Tomorrow</button>
+                        </div>
+                    </div>
+                </div>
+                <button id="search-buses-btn"
+                    class="md:col-span-1 bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md hover:bg-blue-700 transition-colors duration-300 mt-auto">
+                    Search Buses
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bus Types Section -->
+    <div class="max-w-7xl mx-auto p-8 mt-12">
+        <h3 class="text-3xl font-bold text-center text-gray-800 mb-8">Choose Your Bus Type</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-8">
+            <div class="bus-type-card bg-white rounded-xl shadow-lg border border-gray-200 p-6 flex flex-col items-center text-center"
+                style="background-image: url('https://placehold.co/600x400/1e3a8a/ffffff?text=City+Bus');">
+                <div class="card-content">
+                    <h4 class="text-xl font-bold text-white mb-2">City Bus</h4>
+                    <p class="text-gray-200">Comfortable seating for short distances.</p>
+                </div>
+            </div>
+            <div class="bus-type-card bg-white rounded-xl shadow-lg border border-gray-200 p-6 flex flex-col items-center text-center"
+                style="background-image: url('https://placehold.co/600x400/34d399/ffffff?text=Semi-Sleeper');">
+                <div class="card-content">
+                    <h4 class="text-xl font-bold text-white mb-2">Semi-Sleeper</h4>
+                    <p class="text-gray-200">Reclining seats for a relaxed long-distance journey.</p>
+                </div>
+            </div>
+            <div class="bus-type-card bg-white rounded-xl shadow-lg border border-gray-200 p-6 flex flex-col items-center text-center"
+                style="background-image: url('https://placehold.co/600x400/8b5cf6/ffffff?text=Luxury+Sleeper');">
+                <div class="card-content">
+                    <h4 class="text-xl font-bold text-white mb-2">Luxury Sleeper</h4>
+                    <p class="text-gray-200">Full-size beds for ultimate comfort on overnight trips.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bus Image Section -->
+    <div class="max-w-7xl mx-auto p-8 mt-12">
+        <h3 class="text-3xl font-bold text-center text-gray-800 mb-8">Our Fleet</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+                <img src="https://placehold.co/600x400/1e3a8a/ffffff?text=City+Bus" alt="City Bus"
+                    class="w-full h-48 object-cover">
+                <div class="p-4 text-center">
+                    <h4 class="text-lg font-bold text-gray-800">City Bus</h4>
+                    <p class="text-gray-600">Efficient for short commutes.</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+                <img src="https://placehold.co/600x400/34d399/ffffff?text=Semi-Sleeper" alt="Semi-Sleeper Bus"
+                    class="w-full h-48 object-cover">
+                <div class="p-4 text-center">
+                    <h4 class="text-lg font-bold text-gray-800">Semi-Sleeper</h4>
+                    <p class="text-gray-600">Comfortable reclining seats.</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+                <img src="https://placehold.co/600x400/8b5cf6/ffffff?text=Luxury+Sleeper" alt="Luxury Sleeper Bus"
+                    class="w-full h-48 object-cover">
+                <div class="p-4 text-center">
+                    <h4 class="text-lg font-bold text-gray-800">Luxury Sleeper</h4>
+                    <p class="text-gray-600">Full beds for ultimate rest.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="w-full bg-gray-900 text-white py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-3 gap-8 text-center sm:text-left">
+            <div>
+                <h4 class="text-lg font-bold mb-2">Helpline Numbers</h4>
+                <p class="text-sm">For your convenience, here are some state-specific helpline numbers.</p>
+            </div>
+            <div>
+                <h5 class="font-semibold mb-2">North India</h5>
+                <ul class="text-sm space-y-1">
+                    <li>Delhi: +91 98765 43210</li>
+                    <li>Punjab: +91 99887 76655</li>
+                </ul>
+            </div>
+            <div>
+                <h5 class="font-semibold mb-2">South India</h5>
+                <ul class="text-sm space-y-1">
+                    <li>Karnataka: +91 97654 32109</li>
+                    <li>Tamil Nadu: +91 96543 21098</li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Auth and Dashboard Modal -->
+    <div id="auth-modal"
+        class="modal fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 transition-opacity duration-300 invisible opacity-0 z-50">
+        <div class="modal-content bg-white p-6 rounded-xl shadow-2xl w-full max-w-md transform transition-transform duration-300">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="auth-modal-title" class="text-2xl font-bold text-gray-800">Account</h3>
+                <button id="close-modal-btn" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Login/Sign Up Tabs -->
+            <div id="auth-forms" class="space-y-4">
+                <div class="flex justify-around mb-6 border-b border-gray-200">
+                    <button id="tab-login" class="px-4 py-2 font-medium text-gray-700 border-b-2 border-transparent hover:border-blue-500 transition-colors duration-300">
+                        Login
+                    </button>
+                    <button id="tab-signup" class="px-4 py-2 font-medium text-gray-700 border-b-2 border-transparent hover:border-blue-500 transition-colors duration-300">
+                        Sign Up
+                    </button>
+                </div>
+                <!-- Login Section -->
+                <div id="login-section" class="space-y-4">
+                    <div class="flex justify-around mb-4">
+                        <button id="tab-user-login" class="px-4 py-2 text-sm font-medium text-gray-700 rounded-full border border-gray-300 hover:bg-gray-100 transition-colors">
+                            User Login
+                        </button>
+                        <button id="tab-driver-login" class="px-4 py-2 text-sm font-medium text-gray-700 rounded-full border border-gray-300 hover:bg-gray-100 transition-colors">
+                            Driver Login
+                        </button>
+                    </div>
+                    <form id="user-login-form" class="space-y-4">
+                        <input type="email" placeholder="User Email" class="w-full px-4 py-2 bg-gray-100 rounded-lg border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors" required>
+                        <input type="password" placeholder="Password" class="w-full px-4 py-2 bg-gray-100 rounded-lg border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors" required>
+                        <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition-colors">Login as User</button>
+                    </form>
+                    <form id="driver-login-form" class="hidden space-y-4">
+                        <input type="email" placeholder="Driver Email" class="w-full px-4 py-2 bg-gray-100 rounded-lg border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors" required>
+                        <input type="password" placeholder="Password" class="w-full px-4 py-2 bg-gray-100 rounded-lg border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors" required>
+                        <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition-colors">Login as Driver</button>
+                    </form>
+                </div>
+
+                <!-- Sign Up Section -->
+                <div id="signup-section" class="hidden space-y-4">
+                    <div class="flex justify-around mb-4">
+                        <button id="tab-user-signup" class="px-4 py-2 text-sm font-medium text-gray-700 rounded-full border border-gray-300 hover:bg-gray-100 transition-colors">
+                            User Sign Up
+                        </button>
+                        <button id="tab-driver-signup" class="px-4 py-2 text-sm font-medium text-gray-700 rounded-full border border-gray-300 hover:bg-gray-100 transition-colors">
+                            Driver Sign Up
+                        </button>
+                    </div>
+                    <form id="user-signup-form" class="space-y-4">
+                        <input type="text" placeholder="Full Name" class="w-full px-4 py-2 bg-gray-100 rounded-lg border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors" required>
+                        <input type="email" placeholder="Email" class="w-full px-4 py-2 bg-gray-100 rounded-lg border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors" required>
+                        <input type="password" placeholder="Password" class="w-full px-4 py-2 bg-gray-100 rounded-lg border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors" required>
+                        <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition-colors">Sign Up</button>
+                    </form>
+                    <form id="driver-signup-form" class="hidden space-y-4">
+                        <input type="text" placeholder="Full Name" class="w-full px-4 py-2 bg-gray-100 rounded-lg border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors" required>
+                        <input type="email" placeholder="Email" class="w-full px-4 py-2 bg-gray-100 rounded-lg border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors" required>
+                        <input type="password" placeholder="Password" class="w-full px-4 py-2 bg-gray-100 rounded-lg border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors" required>
+                        <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition-colors">Sign Up</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- User Dashboard Section (initially hidden) -->
+            <div id="user-dashboard" class="hidden space-y-4">
+                <h4 class="text-xl font-bold text-gray-800">My Bookings</h4>
+                <div id="user-bookings-list" class="space-y-2">
+                    <p class="text-gray-500">You have no tickets booked yet.</p>
+                </div>
+                <button id="logout-btn" class="w-full bg-red-600 text-white font-semibold py-3 rounded-lg hover:bg-red-700 transition-colors">
+                    Logout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Results Modal -->
+    <div id="search-results-modal"
+        class="modal fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 transition-opacity duration-300 invisible opacity-0 z-50">
+        <div class="modal-content bg-white p-6 rounded-xl shadow-2xl w-full max-w-3xl transform transition-transform duration-300">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="results-heading" class="text-2xl font-bold text-gray-800">Bus Search Results</h3>
+                <button id="close-results-modal-btn" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div id="results-list" class="space-y-4">
+                <!-- Dynamic results will be injected here -->
+            </div>
+            <p id="no-results-message" class="text-center text-gray-500 mt-4 hidden">No buses found for this route.</p>
+        </div>
+    </div>
+
+    <!-- Book Ticket Modal -->
+    <div id="book-ticket-modal"
+        class="modal fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 transition-opacity duration-300 invisible opacity-0 z-50">
+        <div class="modal-content bg-white p-6 rounded-xl shadow-2xl w-full max-w-md transform transition-transform duration-300">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-2xl font-bold text-gray-800">Book Your Ticket</h3>
+                <button id="close-book-ticket-modal-btn" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <form id="book-ticket-form" class="space-y-4">
+                <div>
+                    <label for="booking-date" class="block text-sm font-medium text-gray-700 mb-1">Travel Date</label>
+                    <input type="date" id="booking-date" class="w-full px-4 py-2 bg-gray-100 rounded-lg border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors" required>
+                </div>
+                <div>
+                    <label for="bus-select" class="block text-sm font-medium text-gray-700 mb-1">Select Bus</label>
+                    <select id="bus-select" class="w-full px-4 py-2 bg-gray-100 rounded-lg border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors" required>
+                        <option value="">-- Choose a bus --</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="passenger-name" class="block text-sm font-medium text-gray-700 mb-1">Passenger Name</label>
+                    <input type="text" id="passenger-name" placeholder="Full Name" class="w-full px-4 py-2 bg-gray-100 rounded-lg border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors" required>
+                </div>
+                <div>
+                    <label for="passenger-email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" id="passenger-email" placeholder="email@example.com" class="w-full px-4 py-2 bg-gray-100 rounded-lg border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors" required>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition-colors">Confirm Booking</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Driver Dashboard Modal -->
+    <div id="driver-modal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 transition-opacity duration-300 invisible opacity-0 z-50">
+        <div class="modal-content bg-white p-6 rounded-xl shadow-2xl w-full max-w-md transform transition-transform duration-300">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-2xl font-bold text-gray-800">Driver Dashboard</h3>
+                <button id="close-driver-modal-btn" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div class="space-y-2">
+                    <p class="text-lg font-semibold text-gray-800">Share Route Details</p>
+                    <form id="share-route-form" class="space-y-2">
+                        <input type="text" id="route-source" placeholder="Source City" class="w-full px-4 py-2 bg-gray-100 rounded-lg border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors" required>
+                        <input type="text" id="route-destination" placeholder="Destination City" class="w-full px-4 py-2 bg-gray-100 rounded-lg border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors" required>
+                        <input type="time" id="route-time" placeholder="Departure Time" class="w-full px-4 py-2 bg-gray-100 rounded-lg border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors" required>
+                        <input type="number" id="route-fare" placeholder="Fare Price (e.g., 500)" class="w-full px-4 py-2 bg-gray-100 rounded-lg border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors" required min="0">
+                        <button type="submit" id="save-route-btn" class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                            Save Route
+                        </button>
+                    </form>
+                </div>
+                <div class="space-y-2">
+                    <h4 class="text-lg font-semibold text-gray-800">My Routes</h4>
+                    <div id="driver-routes-list" class="space-y-2">
+                        <p class="text-gray-500">No routes shared yet.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- General Message Box -->
+    <div id="message-box"
+        class="fixed bottom-4 left-1/2 -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg z-50 transition-opacity duration-300 opacity-0 invisible">
+        <p class="text-white text-sm"></p>
+    </div>
+
+    <script>
+        // Modal functions
+        const authModal = document.getElementById('auth-modal');
+        const resultsModal = document.getElementById('search-results-modal');
+        const driverModal = document.getElementById('driver-modal');
+        const bookTicketModal = document.getElementById('book-ticket-modal');
+
+        function openModal(modal) {
+            modal.classList.remove('invisible', 'opacity-0');
+            modal.classList.add('visible', 'opacity-100');
+        }
+
+        function closeModal(modal) {
+            modal.classList.remove('visible', 'opacity-100');
+            modal.classList.add('invisible', 'opacity-0');
+        }
+
+        // Message box function
+        const messageBox = document.getElementById('message-box');
+        function showMessage(message, type = 'success') {
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500'
+            };
+            messageBox.textContent = message;
+            messageBox.className = `fixed bottom-4 left-1/2 -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg z-50 transition-opacity duration-300 opacity-100 visible ${colors[type]}`;
+            setTimeout(() => {
+                messageBox.classList.remove('visible', 'opacity-100');
+                messageBox.classList.add('invisible', 'opacity-0');
+            }, 3000);
+        }
+
+        // Initial Data and State
+        const users = {
+            'user@example.com': 'password123',
+            'john.doe@email.com': 'johndoe'
+        };
+        const drivers = {
+            'driver@example.com': 'driver123'
+        };
+
+        const routes = [
+            { id: 1, driver: 'driver@example.com', source: 'delhi', destination: 'chandigarh', time: '08:00 AM', fare: 500, lat: 30.7333, lng: 76.7794 },
+            { id: 2, driver: 'driver@example.com', source: 'mumbai', destination: 'pune', time: '10:00 AM', fare: 350, lat: 18.5204, lng: 73.8567 },
+            { id: 3, driver: 'driver@example.com', source: 'chennai', destination: 'bangalore', time: '09:30 AM', fare: 650, lat: 12.9716, lng: 77.5946 },
+            { id: 4, driver: 'driver@example.com', source: 'kolkata', destination: 'digha', time: '07:00 AM', fare: 400, lat: 21.6219, lng: 87.5147 }
+        ];
+
+        const bookings = {};
+        
+        // UI Element References
+        const homeLink = document.getElementById('home-link');
+        const authLink = document.getElementById('auth-link');
+        const bookTicketLink = document.getElementById('book-ticket-link');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const closeResultsModalBtn = document.getElementById('close-results-modal-btn');
+        const closeDriverModalBtn = document.getElementById('close-driver-modal-btn');
+        const closeBookTicketModalBtn = document.getElementById('close-book-ticket-modal-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        const authFormsSection = document.getElementById('auth-forms');
+        const userDashboardSection = document.getElementById('user-dashboard');
+        const authModalTitle = document.getElementById('auth-modal-title');
+
+        const tabLogin = document.getElementById('tab-login');
+        const tabSignup = document.getElementById('tab-signup');
+        const loginSection = document.getElementById('login-section');
+        const signupSection = document.getElementById('signup-section');
+
+        const tabUserLogin = document.getElementById('tab-user-login');
+        const tabDriverLogin = document.getElementById('tab-driver-login');
+        const userLoginForm = document.getElementById('user-login-form');
+        const driverLoginForm = document.getElementById('driver-login-form');
+
+        const tabUserSignup = document.getElementById('tab-user-signup');
+        const tabDriverSignup = document.getElementById('tab-driver-signup');
+        const userSignupForm = document.getElementById('user-signup-form');
+        const driverSignupForm = document.getElementById('driver-signup-form');
+
+        const searchBusesBtn = document.getElementById('search-buses-btn');
+        const fromInput = document.getElementById('from');
+        const toInput = document.getElementById('to');
+        const resultsList = document.getElementById('results-list');
+        const noResultsMessage = document.getElementById('no-results-message');
+        const resultsHeading = document.getElementById('results-heading');
+        const todayBtn = document.getElementById('today-btn');
+        const tomorrowBtn = document.getElementById('tomorrow-btn');
+
+        const shareRouteForm = document.getElementById('share-route-form');
+        const routeSourceInput = document.getElementById('route-source');
+        const routeDestinationInput = document.getElementById('route-destination');
+        const routeTimeInput = document.getElementById('route-time');
+        const routeFareInput = document.getElementById('route-fare');
+        const driverRoutesList = document.getElementById('driver-routes-list');
+
+        const bookTicketForm = document.getElementById('book-ticket-form');
+        const busSelect = document.getElementById('bus-select');
+        const userBookingsList = document.getElementById('user-bookings-list');
+
+        let loggedInUser = null;
+        let loggedInUserType = null;
+
+        // UI Update Function
+        function updateUIForLogin(userEmail, userType) {
+            loggedInUser = userEmail;
+            loggedInUserType = userType;
+            if (userType === 'user') {
+                authLink.textContent = 'My Bookings';
+                authModalTitle.textContent = 'My Dashboard';
+                authFormsSection.classList.add('hidden');
+                userDashboardSection.classList.remove('hidden');
+                displayUserBookings();
+            } else if (userType === 'driver') {
+                 authLink.textContent = 'Dashboard';
+                 authFormsSection.classList.add('hidden');
+                 userDashboardSection.classList.add('hidden');
+            }
+        }
+
+        function updateUIForLogout() {
+            loggedInUser = null;
+            loggedInUserType = null;
+            authLink.textContent = 'Login';
+            authModalTitle.textContent = 'Account';
+            authFormsSection.classList.remove('hidden');
+            userDashboardSection.classList.add('hidden');
+        }
+
+        // Event Listeners
+        homeLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            updateUIForLogout();
+            showMessage('You have been logged out.');
+        });
+
+        authLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (loggedInUser) {
+                if (loggedInUserType === 'user') {
+                    openModal(authModal);
+                } else if (loggedInUserType === 'driver') {
+                    openModal(driverModal);
+                }
+            } else {
+                updateUIForLogout();
+                openModal(authModal);
+            }
+        });
+
+        bookTicketLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (loggedInUser && loggedInUserType === 'user') {
+                populateBusSelect();
+                openModal(bookTicketModal);
+            } else if (loggedInUser && loggedInUserType === 'driver') {
+                showMessage('Drivers cannot book tickets.', 'error');
+            } else {
+                showMessage('Please login to book a ticket.', 'info');
+                openModal(authModal);
+            }
+        });
+        
+        closeModalBtn.addEventListener('click', () => {
+            closeModal(authModal);
+        });
+        closeResultsModalBtn.addEventListener('click', () => {
+            closeModal(resultsModal);
+        });
+        closeDriverModalBtn.addEventListener('click', () => {
+            closeModal(driverModal);
+        });
+        closeBookTicketModalBtn.addEventListener('click', () => {
+            closeModal(bookTicketModal);
+        });
+        logoutBtn.addEventListener('click', () => {
+            updateUIForLogout();
+            closeModal(authModal);
+            showMessage('You have been logged out.');
+        });
+
+        // Tab switching logic for login/signup
+        tabLogin.addEventListener('click', () => {
+            tabLogin.classList.add('border-blue-500');
+            tabSignup.classList.remove('border-blue-500');
+            loginSection.classList.remove('hidden');
+            signupSection.classList.add('hidden');
+            tabUserLogin.click();
+        });
+
+        tabSignup.addEventListener('click', () => {
+            tabSignup.classList.add('border-blue-500');
+            tabLogin.classList.remove('border-blue-500');
+            signupSection.classList.remove('hidden');
+            loginSection.classList.add('hidden');
+            tabUserSignup.click();
+        });
+        tabLogin.click(); // Set initial active tab
+
+        // Sub-tab switching for login
+        tabUserLogin.addEventListener('click', () => {
+            tabUserLogin.classList.add('bg-gray-100');
+            tabDriverLogin.classList.remove('bg-gray-100');
+            userLoginForm.classList.remove('hidden');
+            driverLoginForm.classList.add('hidden');
+        });
+        tabDriverLogin.addEventListener('click', () => {
+            tabDriverLogin.classList.add('bg-gray-100');
+            tabUserLogin.classList.remove('bg-gray-100');
+            driverLoginForm.classList.remove('hidden');
+            userLoginForm.classList.add('hidden');
+        });
+
+        // Sub-tab switching for signup
+        tabUserSignup.addEventListener('click', () => {
+            tabUserSignup.classList.add('bg-gray-100');
+            tabDriverSignup.classList.remove('bg-gray-100');
+            userSignupForm.classList.remove('hidden');
+            driverSignupForm.classList.add('hidden');
+        });
+        tabDriverSignup.addEventListener('click', () => {
+            tabDriverSignup.classList.add('bg-gray-100');
+            tabUserSignup.classList.remove('bg-gray-100');
+            driverSignupForm.classList.remove('hidden');
+            userSignupForm.classList.add('hidden');
+        });
+
+        // Form submission handlers
+        userLoginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = e.target[0].value;
+            const password = e.target[1].value;
+            if (users[email] === password) {
+                showMessage('User login successful!');
+                closeModal(authModal);
+                updateUIForLogin(email, 'user');
+            } else {
+                showMessage('Invalid user email or password.', 'error');
+            }
+        });
+
+        driverLoginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = e.target[0].value;
+            const password = e.target[1].value;
+            if (drivers[email] === password) {
+                showMessage('Driver login successful!');
+                closeModal(authModal);
+                updateUIForLogin(email, 'driver');
+                openModal(driverModal);
+            } else {
+                showMessage('Invalid driver email or password.', 'error');
+            }
+        });
+
+        userSignupForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = e.target[1].value;
+            const password = e.target[2].value;
+            if (users[email]) {
+                showMessage('User with this email already exists.', 'error');
+            } else {
+                users[email] = password;
+                showMessage('User account created! You can now log in.');
+                e.target.reset();
+                tabLogin.click();
+            }
+        });
+
+        driverSignupForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = e.target[1].value;
+            const password = e.target[2].value;
+            if (drivers[email]) {
+                showMessage('Driver with this email already exists.', 'error');
+            } else {
+                drivers[email] = password;
+                showMessage('Driver account created! Please log in.', 'success');
+                e.target.reset();
+                tabLogin.click();
+            }
+        });
+
+        // Search functionality
+        searchBusesBtn.addEventListener('click', () => {
+            const from = fromInput.value.trim().toLowerCase();
+            const to = toInput.value.trim().toLowerCase();
+            const date = document.getElementById('date').value;
+
+            if (!from || !to) {
+                showMessage('Please enter both source and destination.', 'error');
+                return;
+            }
+
+            const filteredRoutes = routes.filter(route =>
+                route.source.toLowerCase() === from && route.destination.toLowerCase() === to
+            );
+
+            resultsList.innerHTML = '';
+            if (filteredRoutes.length > 0) {
+                noResultsMessage.classList.add('hidden');
+                resultsHeading.textContent = `Buses from ${from} to ${to}`;
+                filteredRoutes.forEach(route => {
+                    const busCard = document.createElement('div');
+                    busCard.className = "bg-gray-100 p-4 rounded-xl shadow-sm space-y-2 border border-gray-200";
+                    busCard.innerHTML = `
+                        <p class="text-lg font-bold text-gray-800">${route.source.toUpperCase()} to ${route.destination.toUpperCase()}</p>
+                        <p class="text-gray-600">Departure: <span class="font-medium">${route.time}</span></p>
+                        <p class="text-gray-600">Fare: <span class="font-medium">₹${route.fare}</span></p>
+                        <p class="text-gray-600">Driver: <span class="font-medium">${route.driver}</span></p>
+                        <button class="track-bus-btn w-full bg-blue-500 text-white font-semibold py-2 rounded-lg hover:bg-blue-600 transition-colors mt-2" data-lat="${route.lat}" data-lng="${route.lng}">
+                            Track Bus
+                        </button>
+                    `;
+                    resultsList.appendChild(busCard);
+                });
+                
+                // Add event listeners to the new "Track Bus" buttons
+                document.querySelectorAll('.track-bus-btn').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const lat = e.target.getAttribute('data-lat');
+                        const lng = e.target.getAttribute('data-lng');
+                        openBusMap(lat, lng);
+                    });
+                });
+
+            } else {
+                noResultsMessage.classList.remove('hidden');
+                resultsHeading.textContent = `Bus Search Results`;
+            }
+            openModal(resultsModal);
+        });
+
+        // Function to open Google Maps with bus location
+        function openBusMap(lat, lng) {
+            const mapUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+            window.open(mapUrl, '_blank');
+        }
+
+        // Driver functionality
+        shareRouteForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const source = routeSourceInput.value;
+            const destination = routeDestinationInput.value;
+            const time = routeTimeInput.value;
+            const fare = routeFareInput.value;
+
+            if (loggedInUserType === 'driver') {
+                const newRoute = {
+                    id: routes.length + 1,
+                    driver: loggedInUser,
+                    source: source,
+                    destination: destination,
+                    time: time,
+                    fare: fare,
+                    lat: 0, // Placeholder
+                    lng: 0  // Placeholder
+                };
+                routes.push(newRoute);
+                showMessage('Route details saved successfully!', 'success');
+                shareRouteForm.reset();
+                displayDriverRoutes();
+            }
+        });
+
+        function displayDriverRoutes() {
+            driverRoutesList.innerHTML = '';
+            const driverRoutes = routes.filter(route => route.driver === loggedInUser);
+            if (driverRoutes.length === 0) {
+                driverRoutesList.innerHTML = '<p class="text-gray-500">No routes shared yet.</p>';
+            } else {
+                driverRoutes.forEach(route => {
+                    const card = document.createElement('div');
+                    card.className = "bg-gray-50 p-3 rounded-lg border border-gray-200 text-sm";
+                    card.innerHTML = `<p class="font-medium">${route.source} to ${route.destination}</p><p class="text-gray-500">Time: ${route.time}</p><p class="text-gray-500">Fare: ₹${route.fare}</p>`;
+                    driverRoutesList.appendChild(card);
+                });
+            }
+        }
+
+        // Book Ticket functionality
+        bookTicketForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const selectedBusString = busSelect.value;
+            const passengerName = document.getElementById('passenger-name').value;
+            const passengerEmail = document.getElementById('passenger-email').value;
+
+            if (!loggedInUser || loggedInUserType !== 'user') {
+                showMessage('You must be logged in as a user to book a ticket.', 'error');
+                return;
+            }
+
+            if (selectedBusString && passengerName && passengerEmail) {
+                const bookingDetails = {
+                    bus: selectedBusString,
+                    name: passengerName,
+                    email: passengerEmail,
+                    bookingDate: new Date().toLocaleDateString()
+                };
+
+                if (!bookings[loggedInUser]) {
+                    bookings[loggedInUser] = [];
+                }
+                bookings[loggedInUser].push(bookingDetails);
+
+                showMessage(`Booking confirmed for ${passengerName}!`, 'success');
+                bookTicketForm.reset();
+                closeModal(bookTicketModal);
+                displayUserBookings();
+            } else {
+                showMessage('Please fill out all fields.', 'error');
+            }
+        });
+        
+        function populateBusSelect() {
+            busSelect.innerHTML = '<option value="">-- Choose a bus --</option>';
+            routes.forEach(route => {
+                const option = document.createElement('option');
+                option.value = `${route.source} to ${route.destination} at ${route.time} (Fare: ₹${route.fare})`;
+                option.textContent = `${route.source} to ${route.destination} at ${route.time} (₹${route.fare})`;
+                busSelect.appendChild(option);
+            });
+        }
+
+        function displayUserBookings() {
+            userBookingsList.innerHTML = '';
+            const userTickets = bookings[loggedInUser] || [];
+            if (userTickets.length === 0) {
+                userBookingsList.innerHTML = '<p class="text-gray-500">You have no tickets booked yet.</p>';
+            } else {
+                userTickets.forEach(ticket => {
+                    const card = document.createElement('div');
+                    card.className = "bg-gray-50 p-3 rounded-lg border border-gray-200 text-sm";
+                    card.innerHTML = `<p class="font-medium">Ticket for: ${ticket.name}</p>
+                                    <p class="text-gray-500">Bus: ${ticket.bus}</p>
+                                    <p class="text-gray-500">Booking Date: ${ticket.bookingDate}</p>`;
+                    userBookingsList.appendChild(card);
+                });
+            }
+        }
+    </script>
+</body>
+</html>
